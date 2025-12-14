@@ -64,8 +64,10 @@ const App: React.FC = () => {
 
       setMessages(prev => [...prev, botMsg]);
     } catch (err: any) {
-      setError("Si è verificato un errore durante la connessione a Cosmos. Riprova più tardi.");
-      console.error(err);
+      console.error("Cosmos Error:", err);
+      // Show more specific error if available
+      const errorMessage = err.message || JSON.stringify(err) || "Si è verificato un errore generico.";
+      setError(`Errore: ${errorMessage}. Controlla la console per i dettagli.`);
     } finally {
       setIsLoading(false);
     }
