@@ -1,31 +1,20 @@
-import { GoogleGenAI, Chat, GenerateContentResponse } from "@google/genai";
+import Groq from "groq-sdk";
 import { COSMOS_SYSTEM_INSTRUCTION } from "../constants";
 
-// Singleton instance to hold the chat session
-let chatSession: Chat | null = null;
+let groq: Groq | null = null;
 
 const getAIInstance = () => {
-  const apiKey = import.meta.env.VITE_API_KEY;
+  const apiKey = import.meta.env.VITE_API_KEY; // We will reuse the same env var name for simplicity or instruct user to change value
   if (!apiKey) {
-    throw new Error("VITE_API_KEY is missing. Please add it to your .env file.");
+    throw new Error("API Key mancante. Inserisci la chiave Groq in .env come VITE_API_KEY");
   }
-  return new GoogleGenAI({ apiKey });
+  return new Groq({ apiKey, dangerouslyAllowBrowser: true }); // Client-side usage requires this flag
 };
 
 export const initializeChat = async () => {
-  const ai = getAIInstance();
-
-  // We start a new chat session with specific system instructions and tools
-  chatSession = ai.chats.create({
-    model: 'gemini-1.5-flash',
-    config: {
-      systemInstruction: COSMOS_SYSTEM_INSTRUCTION,
-      // Temperature lowered to 0.2 for strict adherence to formatting rules
-      temperature: 0.7,
-      // Google Search Grounding removed to ensure 100% Free Tier compatibility
-      // tools: [{ googleSearch: {} }], 
-    },
-  });
+  groq = getAIInstance();
+  // Groq doesn't need explicit session init like Gemini, it's stateless request-based mostly, 
+  // but we can prepare the instance.
 };
 
 export interface ChatResponse {
@@ -33,58 +22,40 @@ export interface ChatResponse {
   sources: { title: string; uri: string }[];
 }
 
+// Simple history management for the session
+let conversationHistory: { role: "user" | "system" | "assistant", content: string }[] = [
+  { role: "system", content: COSMOS_SYSTEM_INSTRUCTION }
+];
+
 export const sendMessageToCosmos = async (message: string): Promise<ChatResponse> => {
-  if (!chatSession) {
+  if (!groq) {
     await initializeChat();
   }
 
-  if (!chatSession) {
-    throw new Error("Failed to initialize chat session.");
-  }
+  if (!groq) throw new Error("Impossible inizializzare Groq AI");
 
-  const msgLower = message.toLowerCase();
-  let query = "";
-
-  // INTELLIGENT QUERY CONSTRUCTION
-  // If user asks for "latest" or "new", we strictly search the root site 
-  // because the homepage contains the feed of latest posts.
-  if (msgLower.includes('ultim') || msgLower.includes('nuov') || msgLower.includes('recent')) {
-    query = `site:cosmonet.info`;
-  } else {
-    // Normal topic search
-    query = `site:cosmonet.info ${message}`;
-  }
+  // Add user message to history
+  conversationHistory.push({ role: "user", content: message });
 
   try {
-    const result: GenerateContentResponse = await chatSession.sendMessage({
-      message: query
+    const completion = await groq.chat.completions.create({
+      messages: conversationHistory,
+      model: "llama-3.3-70b-versatile", // Very powerful, fast, and free tier friendly
+      temperature: 0.7,
+      max_tokens: 1024,
     });
 
-    // Fallback text if the model returns empty string
-    const text = result.text || "Non ho trovato riscontri negli articoli di Cosmonet.info.";
+    const responseText = completion.choices[0]?.message?.content || "Mi dispiace, non ho ricevuto risposta.";
 
-    // Extract grounding metadata (sources)
-    const sources: { title: string; uri: string }[] = [];
-    const chunks = result.candidates?.[0]?.groundingMetadata?.groundingChunks;
+    // Add assistant response to history
+    conversationHistory.push({ role: "assistant", content: responseText });
 
-    if (chunks) {
-      chunks.forEach((chunk: any) => {
-        if (chunk.web?.uri && chunk.web?.title) {
-          // STRICT FILTER: Only accept sources strictly from cosmonet.info
-          if (chunk.web.uri.toLowerCase().includes('cosmonet.info')) {
-            sources.push({
-              title: chunk.web.title,
-              uri: chunk.web.uri
-            });
-          }
-        }
-      });
-    }
-
-    return { text, sources };
+    // Groq doesn't have native grounding like Gemini, so sources are empty.
+    // The system prompt handles the "check website" advice.
+    return { text: responseText, sources: [] };
 
   } catch (error) {
-    console.error("Error communicating with Cosmos:", error);
+    console.error("Groq Error:", error);
     throw error;
   }
 };

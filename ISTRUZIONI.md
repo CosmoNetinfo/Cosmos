@@ -1,25 +1,16 @@
 # Istruzioni per "Cosmos" AI Chatbot
 
-## Setup Iniziale
-1. Assicurati di avere una chiave API di Google Gemini.
-2. Crea un file chiamato `.env` nella cartella principale del progetto.
-3. Inserisci la tua chiave nel file:
+## Setup Iniziale (Versione Gratutia con Groq)
+Abbiamo passato il sistema a **Groq AI** per garantire un servizio gratuito e stabile.
+
+1. Ottieni una chiave API gratuita qui: [https://console.groq.com/keys](https://console.groq.com/keys)
+2. Crea (o aggiorna) il file `.env` nella cartella principale:
    ```
-   VITE_API_KEY=la_tua_chiave_api_qui
+   VITE_API_KEY=gsk_la_tua_chiave_groq...
    ```
 
-## Perché Gemini? (Risposta alla tua domanda)
-Hai chiesto se c'è un modello migliore da "addestrare". Per il tuo scopo (aggiornamento automatico basato sulla sitemap), **l'addestramento classico (Fine-tuning)** è in realtà sconsigliato perché:
-1. **È statico:** Appena pubblichi un articolo, il modello "addestrato" ieri non lo conosce.
-2. **È costoso:** Devi riaddestrare il modello costantemente.
-
-La soluzione migliore non è l'addestramento, ma il **Grounding (Ancoraggio)**.
-Il codice che ho ottimizzato usa **Gemini con Google Search Grounding**. Questo significa che l'AI non "ricorda" il tuo sito a memoria, ma **lo legge in tempo reale** tramite l'indice di Google. 
-- Quando l'utente chiede "ultime news", Gemini cerca su `site:cosmonet.info`.
-- Se pubblichi un articolo alle 10:00 e Google lo indicizza alle 10:05, alle 10:06 il chatbot lo sa già.
-
-**Alternative?**
-Se volessi usare **OpenAI (GPT-4)**, dovresti costruire un sistema complesso che scarica la tua sitemap ogni notte, legge tutte le pagine e le salva in un database vettoriale. Gemini ti offre questa funzione "gratis" tramite la Ricerca Google.
+## Perché Groq?
+Hai chiesto un'alternativa gratuita e funzionante. **Groq** offre i modelli open source più potenti (come Llama 3 di Meta) a velocità incredibili e con un piano gratuito molto generoso che non dà i problemi di quota che hai riscontrato con Google.
 
 ## Avvio
 Esegui il comando:
