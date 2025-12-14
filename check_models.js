@@ -17,35 +17,29 @@ if (!apiKey) {
 
 const ai = new GoogleGenAI({ apiKey });
 
+import util from 'util';
+
 async function listModels() {
     console.log("🔍 Cerco modelli disponibili...");
     try {
         const response = await ai.models.list();
-        if (response) {
-            // The response is usually a list or has a models property.
-            // The logs showed a huge JSON. Let's try to interpret common structures.
-            // Based on SDK: check if it is iterable or has .models
-            let models = [];
-            if (Array.isArray(response)) models = response;
-            else if (response.models) models = response.models;
+        const str = JSON.stringify(response);
+        // Regex looking for "name": "models/gemini-..."
+        const regex = /"name":"models\/(gemini-[^"]+)"/g;
+        let match;
+        const found = new Set();
 
-            console.log("\n✅ Modelli disponibili:");
-            // Simply log the IDs/names if found, otherwise keys
-            models.forEach(m => {
-                console.log(`- ${m.name} (DisplayName: ${m.displayName})`);
-            });
-
-            // Fallback dump if empty but response exists
-            if (models.length === 0) {
-                console.log("Struttura risposta inattesa. Prime key:", Object.keys(response));
-                // Try to find anything looking like a model name in the FULL output
-                const text = JSON.stringify(response);
-                const matches = text.match(/models\/[\w-.]+/g);
-                if (matches) {
-                    console.log("Forse questi:", [...new Set(matches)]);
-                }
-            }
+        while ((match = regex.exec(str)) !== null) {
+            found.add(match[1]);
         }
+
+        if (found.size > 0) {
+            console.log("✅ Modelli Trovati (Regex):");
+            found.forEach(name => console.log(`- ${name}`));
+        } else {
+            console.log("⚠️ Nessun modello trovato con regex.");
+        }
+
     } catch (err) {
         console.error("Errore:", err.message);
     }
