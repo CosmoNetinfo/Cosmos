@@ -5,25 +5,25 @@ import { COSMOS_SYSTEM_INSTRUCTION } from "../constants";
 let chatSession: Chat | null = null;
 
 const getAIInstance = () => {
-  const apiKey = process.env.API_KEY;
+  const apiKey = import.meta.env.VITE_API_KEY;
   if (!apiKey) {
-    throw new Error("API_KEY is missing from environment variables");
+    throw new Error("VITE_API_KEY is missing. Please add it to your .env file.");
   }
   return new GoogleGenAI({ apiKey });
 };
 
 export const initializeChat = async () => {
   const ai = getAIInstance();
-  
+
   // We start a new chat session with specific system instructions and tools
   chatSession = ai.chats.create({
-    model: 'gemini-2.5-flash', 
+    model: 'gemini-1.5-flash',
     config: {
       systemInstruction: COSMOS_SYSTEM_INSTRUCTION,
       // Temperature lowered to 0.2 for strict adherence to formatting rules (no citation artifacts)
       temperature: 0.2,
       // Enable Google Search Grounding
-      tools: [{ googleSearch: {} }], 
+      tools: [{ googleSearch: {} }],
     },
   });
 };
@@ -62,7 +62,7 @@ export const sendMessageToCosmos = async (message: string): Promise<ChatResponse
 
     // Fallback text if the model returns empty string
     const text = result.text || "Non ho trovato riscontri negli articoli di Cosmonet.info.";
-    
+
     // Extract grounding metadata (sources)
     const sources: { title: string; uri: string }[] = [];
     const chunks = result.candidates?.[0]?.groundingMetadata?.groundingChunks;
