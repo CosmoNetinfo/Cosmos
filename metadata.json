@@ -1,0 +1,5 @@
+{
+  "name": "Cosmos - Cosmonet AI Agent",
+  "description": "An intelligent AI agent named Cosmos that answers questions based on the Cosmonet.info blog using real-time Google Search grounding.",
+  "requestFramePermissions": []
+}
