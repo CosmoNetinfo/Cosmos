@@ -17,7 +17,7 @@ export const initializeChat = async () => {
 
   // We start a new chat session with specific system instructions and tools
   chatSession = ai.chats.create({
-    model: 'gemini-1.5-flash-002',
+    model: 'gemini-2.0-flash-exp',
     config: {
       systemInstruction: COSMOS_SYSTEM_INSTRUCTION,
       // Temperature lowered to 0.2 for strict adherence to formatting rules (no citation artifacts)
