@@ -17,13 +17,13 @@ export const initializeChat = async () => {
 
   // We start a new chat session with specific system instructions and tools
   chatSession = ai.chats.create({
-    model: 'gemini-1.5-flash-8b',
+    model: 'gemini-1.5-flash',
     config: {
       systemInstruction: COSMOS_SYSTEM_INSTRUCTION,
-      // Temperature lowered to 0.2 for strict adherence to formatting rules (no citation artifacts)
-      temperature: 0.2,
-      // Enable Google Search Grounding
-      tools: [{ googleSearch: {} }],
+      // Temperature lowered to 0.2 for strict adherence to formatting rules
+      temperature: 0.7,
+      // Google Search Grounding removed to ensure 100% Free Tier compatibility
+      // tools: [{ googleSearch: {} }], 
     },
   });
 };
