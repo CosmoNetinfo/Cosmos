@@ -66,8 +66,9 @@ export const sendMessageToCosmos = async (message: string): Promise<ChatResponse
     const completion = await groq.chat.completions.create({
       messages: conversationHistory,
       model: "llama-3.3-70b-versatile",
-      temperature: 0.7,
-      max_tokens: 1024,
+      temperature: 0.6,
+      max_tokens: 4096,
+      top_p: 0.9,
     });
 
     const responseText = completion.choices[0]?.message?.content || "Mi dispiace, non ho ricevuto risposta.";
