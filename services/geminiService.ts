@@ -27,12 +27,28 @@ let conversationHistory: { role: "user" | "system" | "assistant", content: strin
   { role: "system", content: COSMOS_SYSTEM_INSTRUCTION }
 ];
 
+import { fetchLatestArticles, Article } from './sitemapService';
+
 export const sendMessageToCosmos = async (message: string): Promise<ChatResponse> => {
   if (!groq) {
     await initializeChat();
   }
 
   if (!groq) throw new Error("Impossible inizializzare Groq AI");
+
+  // Dynamic Context Injection: Fetch latest articles if not done yet
+  let latestArticlesContext = "";
+  if (conversationHistory.length === 1) { // Only do this at the start of conversation
+    const articles = await fetchLatestArticles();
+    if (articles.length > 0) {
+      const list = articles.map(a => `- [${a.title}](${a.link}) (Aggiornato: ${a.pubDate})`).join("\n");
+      latestArticlesContext = `\n\nAGGIORNAMENTO SITEMAP (ULITME NOVITÀ DAL SITO):\nEcco gli articoli più recenti trovati ORA sul sito. Usali per rispondere a domande su "novità" o "ultimi articoli":\n${list}\n`;
+
+      // Inject into system prompt (update the first message)
+      conversationHistory[0].content += latestArticlesContext;
+      console.log("Sitemap injected into context!", list);
+    }
+  }
 
   // Add user message to history
   conversationHistory.push({ role: "user", content: message });
