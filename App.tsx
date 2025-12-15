@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Layout } from './components/Layout';
 import { ChatMessage } from './components/ChatMessage';
-import { sendMessageToCosmos, initializeChat } from './services/geminiService';
+import { sendMessageToCosmos, initializeChat } from './services/groqService';
 import { Message } from './types';
 
 const generateId = () => Math.random().toString(36).substring(2, 15);
@@ -166,7 +166,7 @@ const App: React.FC = () => {
             </button>
           </div>
           <p className="text-center text-[10px] text-slate-500 mt-3 font-medium tracking-wide">
-            Cosmos è potenziato da Gemini AI • Cerca su <span className="text-indigo-400">Cosmonet.info</span>
+            Cosmos è potenziato da Groq AI (Llama 3) • Cerca su <span className="text-indigo-400">Cosmonet.info</span>
           </p>
         </div>
       </div>
