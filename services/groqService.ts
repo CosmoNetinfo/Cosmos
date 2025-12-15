@@ -1,20 +1,19 @@
 import Groq from "groq-sdk";
 import { COSMOS_SYSTEM_INSTRUCTION } from "../constants";
+import { searchWeb } from "./searchService";
 
 let groq: Groq | null = null;
 
 const getAIInstance = () => {
-  const apiKey = import.meta.env.VITE_API_KEY; // We will reuse the same env var name for simplicity or instruct user to change value
+  const apiKey = import.meta.env.VITE_API_KEY;
   if (!apiKey) {
     throw new Error("API Key mancante. Inserisci la chiave Groq in .env come VITE_API_KEY");
   }
-  return new Groq({ apiKey, dangerouslyAllowBrowser: true }); // Client-side usage requires this flag
+  return new Groq({ apiKey, dangerouslyAllowBrowser: true });
 };
 
 export const initializeChat = async () => {
   groq = getAIInstance();
-  // Groq doesn't need explicit session init like Gemini, it's stateless request-based mostly, 
-  // but we can prepare the instance.
 };
 
 export interface ChatResponse {
@@ -22,12 +21,9 @@ export interface ChatResponse {
   sources: { title: string; uri: string }[];
 }
 
-// Simple history management for the session
 let conversationHistory: { role: "user" | "system" | "assistant", content: string }[] = [
   { role: "system", content: COSMOS_SYSTEM_INSTRUCTION }
 ];
-
-import { fetchLatestArticles, Article } from './sitemapService';
 
 export const sendMessageToCosmos = async (message: string): Promise<ChatResponse> => {
   if (!groq) {
@@ -36,39 +32,52 @@ export const sendMessageToCosmos = async (message: string): Promise<ChatResponse
 
   if (!groq) throw new Error("Impossible inizializzare Groq AI");
 
-  // Dynamic Context Injection: Fetch latest articles if not done yet
-  let latestArticlesContext = "";
-  if (conversationHistory.length === 1) { // Only do this at the start of conversation
-    const articles = await fetchLatestArticles();
-    if (articles.length > 0) {
-      const list = articles.map(a => `- [${a.title}](${a.link}) (Aggiornato: ${a.pubDate})`).join("\n");
-      latestArticlesContext = `\n\nAGGIORNAMENTO SITEMAP (ULITME NOVITÀ DAL SITO):\nEcco gli articoli più recenti trovati ORA sul sito. Usali per rispondere a domande su "novità" o "ultimi articoli":\n${list}\n`;
+  // Logic to detect if we need to search the web
+  // Keywords that suggest a need for real-time info
+  const searchKeywords = ["news", "novità", "notizie", "cerca", "trova", "ultime", "uscita", "prezzo", "quando", "chi", "attuali"];
+  const shouldSearch = searchKeywords.some(keyword => message.toLowerCase().includes(keyword));
 
-      // Inject into system prompt (update the first message)
-      conversationHistory[0].content += latestArticlesContext;
-      console.log("Sitemap injected into context!", list);
+  let finalUserMessage = message;
+  let sources: { title: string; uri: string }[] = [];
+
+  if (shouldSearch) {
+    try {
+      // Use the user's message as the search query
+      const searchResults = await searchWeb(message);
+
+      if (searchResults.length > 0) {
+        const contextString = searchResults.map(r => `- [${r.title}](${r.link}) (${r.pubDate})`).join("\n");
+
+        finalUserMessage = `${message}\n\n[SISTEMA: Ho trovato queste notizie RECENTI dal web per aiutarti a rispondere. Usa queste informazioni se pertinenti:]\n${contextString}`;
+
+        // Map for the UI
+        sources = searchResults.map(r => ({ title: r.title, uri: r.link }));
+        console.log("Web search injected:", searchResults.length, "results");
+      }
+    } catch (err) {
+      console.warn("Search failed efficiently, proceeding without context:", err);
     }
   }
 
   // Add user message to history
-  conversationHistory.push({ role: "user", content: message });
+  conversationHistory.push({ role: "user", content: finalUserMessage });
 
   try {
     const completion = await groq.chat.completions.create({
       messages: conversationHistory,
-      model: "llama-3.3-70b-versatile", // Very powerful, fast, and free tier friendly
+      model: "llama-3.3-70b-versatile",
       temperature: 0.7,
       max_tokens: 1024,
     });
 
     const responseText = completion.choices[0]?.message?.content || "Mi dispiace, non ho ricevuto risposta.";
 
-    // Add assistant response to history
+    // Add assistant response to history (clean, without the injected context if possible, but Groq needs history consistency so we keep it simple)
+    // Actually, for history preservation, we might want to store the clean message, but for LLM context, provided message is better.
+    // simpler: just push the answer.
     conversationHistory.push({ role: "assistant", content: responseText });
 
-    // Groq doesn't have native grounding like Gemini, so sources are empty.
-    // The system prompt handles the "check website" advice.
-    return { text: responseText, sources: [] };
+    return { text: responseText, sources: sources };
 
   } catch (error) {
     console.error("Groq Error:", error);
