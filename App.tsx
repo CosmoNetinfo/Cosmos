@@ -112,33 +112,31 @@ const App: React.FC = () => {
             </div>
           )}
 
-          {/* Suggested Questions (Only show when few messages or user might need help) */}
-          {messages.length < 3 && !isLoading && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-8 opacity-80 transition-opacity duration-500 hover:opacity-100">
-              <button onClick={() => handleSend("Quali sono gli ultimi articoli pubblicati?")} className="text-left p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 hover:border-indigo-500/30 transition-all group">
-                <span className="block text-indigo-300 text-xs font-bold uppercase tracking-wider mb-1">News</span>
-                <span className="text-slate-300 text-sm">Quali sono gli ultimi articoli?</span>
-              </button>
-              <button onClick={() => handleSend("Parlami della sezione Linux")} className="text-left p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 hover:border-indigo-500/30 transition-all group">
-                <span className="block text-indigo-300 text-xs font-bold uppercase tracking-wider mb-1">Linux</span>
-                <span className="text-slate-300 text-sm">Cosa trovo nella sezione Linux?</span>
-              </button>
-              <button onClick={() => handleSend("Ci sono guide sull'Intelligenza Artificiale?")} className="text-left p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 hover:border-indigo-500/30 transition-all group">
-                <span className="block text-indigo-300 text-xs font-bold uppercase tracking-wider mb-1">AI & Tech</span>
-                <span className="text-slate-300 text-sm">Guide sull'Intelligenza Artificiale?</span>
-              </button>
-              <button onClick={() => handleSend("News sul Gaming?")} className="text-left p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 hover:border-indigo-500/30 transition-all group">
-                <span className="block text-indigo-300 text-xs font-bold uppercase tracking-wider mb-1">Gaming</span>
-                <span className="text-slate-300 text-sm">Ultime novità sul Gaming?</span>
-              </button>
-            </div>
-          )}
+
 
           <div ref={messagesEndRef} className="h-4" />
         </div>
 
         {/* Input Area */}
         <div className="p-4 md:p-6 bg-gradient-to-t from-cosmos-900 via-cosmos-900/95 to-transparent z-20">
+
+          {/* Pro Mode Indicator */}
+          <div className="max-w-4xl mx-auto mb-3 flex items-center justify-between px-2">
+            <div>
+              <h3 className="text-white text-sm font-semibold tracking-wide">Ricerca</h3>
+              <p className="text-slate-400 text-xs">Ricerca approfondita su qualsiasi argomento</p>
+            </div>
+            <div className="flex items-center space-x-2 bg-cyan-950/30 border border-cyan-500/20 px-3 py-1.5 rounded-lg">
+              <span className="text-cyan-400 font-bold text-xs uppercase tracking-wider flex items-center">
+                <span className="w-1.5 h-1.5 bg-cyan-400 rounded-full mr-2 animate-pulse"></span>
+                PRO Abilitato
+              </span>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-cyan-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+              </svg>
+            </div>
+          </div>
+
           <div className="relative flex items-center max-w-4xl mx-auto shadow-2xl shadow-indigo-900/20 rounded-2xl bg-cosmos-800/50 border border-white/10 focus-within:border-indigo-500/50 focus-within:ring-1 focus-within:ring-indigo-500/30 transition-all backdrop-blur-xl">
             <textarea
               value={inputText}
