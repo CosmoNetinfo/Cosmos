@@ -118,41 +118,39 @@ const App: React.FC = () => {
         </div>
 
         {/* Input Area */}
-        <div className="p-4 md:p-6 bg-gradient-to-t from-cosmos-900 via-cosmos-900/95 to-transparent z-20">
+        <div className="p-4 md:p-6 bg-gradient-to-t from-slate-50 to-transparent z-20">
 
           {/* Pro Mode Indicator */}
           <div className="max-w-4xl mx-auto mb-3 flex items-center justify-between px-2">
             <div>
-              <h3 className="text-white text-sm font-semibold tracking-wide">Ricerca</h3>
-              <p className="text-slate-400 text-xs">Ricerca approfondita su qualsiasi argomento</p>
+              <h3 className="text-slate-800 text-sm font-semibold tracking-wide">Ricerca</h3>
+              <p className="text-slate-500 text-xs">Ricerca approfondita su qualsiasi argomento</p>
             </div>
-            <div className="flex items-center space-x-2 bg-cyan-950/30 border border-cyan-500/20 px-3 py-1.5 rounded-lg">
-              <span className="text-cyan-400 font-bold text-xs uppercase tracking-wider flex items-center">
-                <span className="w-1.5 h-1.5 bg-cyan-400 rounded-full mr-2 animate-pulse"></span>
+            <div className="flex items-center space-x-2 bg-cyan-50 border border-cyan-200 px-3 py-1.5 rounded-lg shadow-sm">
+              <span className="text-cyan-600 font-bold text-xs uppercase tracking-wider flex items-center">
+                <span className="w-1.5 h-1.5 bg-cyan-500 rounded-full mr-2 animate-pulse"></span>
                 PRO Abilitato
               </span>
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-cyan-400" viewBox="0 0 20 20" fill="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-cyan-600" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
               </svg>
             </div>
           </div>
 
-          <div className="relative flex items-center max-w-4xl mx-auto shadow-2xl shadow-indigo-900/20 rounded-2xl bg-cosmos-800/50 border border-white/10 focus-within:border-indigo-500/50 focus-within:ring-1 focus-within:ring-indigo-500/30 transition-all backdrop-blur-xl">
+          <div className="relative flex items-center max-w-4xl mx-auto shadow-xl shadow-slate-200/60 rounded-2xl bg-white border border-slate-200 focus-within:border-indigo-400 focus-within:ring-4 focus-within:ring-indigo-100 transition-all">
             <textarea
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               onKeyDown={handleKeyPress}
               placeholder="Chiedi a Cosmos..."
               rows={1}
-              className="w-full bg-transparent text-slate-100 placeholder-slate-500 rounded-2xl pl-5 pr-14 py-4 focus:outline-none resize-none overflow-hidden min-h-[56px] max-h-32"
+              className="w-full bg-transparent text-slate-800 placeholder-slate-400 rounded-2xl pl-5 pr-14 py-4 focus:outline-none resize-none overflow-hidden min-h-[56px] max-h-32"
               style={{ height: 'auto' }}
-            // Auto-resize logic could be added here or via a ref, but strict rows=1 + overflow-hidden keeps it simple for now or let it scroll. 
-            // Better: standard textarea behavior
             />
             <button
               onClick={() => handleSend(inputText)}
               disabled={isLoading || !inputText.trim()}
-              className="absolute right-2 p-2.5 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-700/50 disabled:text-slate-500 disabled:cursor-not-allowed text-white rounded-xl transition-all shadow-lg shadow-indigo-600/20 hover:shadow-indigo-600/40 active:scale-95 flex items-center justify-center"
+              className="absolute right-2 p-2.5 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-white rounded-xl transition-all shadow-md shadow-indigo-200 hover:shadow-indigo-300 active:scale-95 flex items-center justify-center"
             >
               {isLoading ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -163,8 +161,8 @@ const App: React.FC = () => {
               )}
             </button>
           </div>
-          <p className="text-center text-[10px] text-slate-500 mt-3 font-medium tracking-wide">
-            Cosmos è potenziato da Groq AI (Llama 3) • Cerca su <span className="text-indigo-400">Cosmonet.info</span>
+          <p className="text-center text-[10px] text-slate-400 mt-3 font-medium tracking-wide">
+            Cosmos è potenziato da Groq AI (Llama 3) • Cerca su <span className="text-indigo-600">Cosmonet.info</span>
           </p>
         </div>
       </div>
