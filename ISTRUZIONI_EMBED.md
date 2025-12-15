@@ -8,7 +8,7 @@ Copia e incolla questo codice nell'HTML della tua pagina:
 
 ```html
 <iframe 
-    src="https://cosmos-pi.vercel.app/" 
+    src="https://cosmos-three-omega.vercel.app/" 
     width="100%" 
     height="700px" 
     style="border:none; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);" 
