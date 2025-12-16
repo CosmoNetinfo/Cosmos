@@ -22,7 +22,7 @@ const App: React.FC = () => {
       {
         id: generateId(),
         role: 'model',
-        text: 'Ciao! Sono **Cosmos**. Ho letto tutti gli articoli di Cosmonet.info e sono pronto ad aiutarti.\n\nChiedimi pure qualsiasi cosa su Tecnologia, Open Source, AI o Gaming trattata nel blog!',
+        text: 'Ciao! Sono **Cosmos**, un Agente AI avanzato. Effettuo ricerche in tempo reale sul Web per risponderti con notizie fresche e dati aggiornati.',
         timestamp: new Date()
       }
     ]);
@@ -162,7 +162,7 @@ const App: React.FC = () => {
             </button>
           </div>
           <p className="text-center text-[10px] text-slate-400 mt-3 font-medium tracking-wide">
-            Cosmos è potenziato da Groq AI (Llama 3) • Cerca su <span className="text-indigo-600">Cosmonet.info</span>
+            Cosmos è potenziato da Groq AI (Llama 3) • <span className="text-indigo-600">Ricerca Web Estesa</span>
           </p>
         </div>
       </div>

@@ -71,17 +71,53 @@ const searchReddit = async (query: string): Promise<SearchResult[]> => {
     }
 };
 
+const searchNewsApi = async (query: string): Promise<SearchResult[]> => {
+    try {
+        const apiKey = import.meta.env.VITE_NEWS_API_KEY;
+        if (!apiKey) {
+            console.warn("News API Key missing (VITE_NEWS_API_KEY). Skipping News API search.");
+            return [];
+        }
+
+        // News API: /v2/everything for search
+        // Sort by relevancy by default, language=it for context consistency (or remove to broader search)
+        // We limit to 5 to match other sources
+        const url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(query)}&sortBy=relevancy&pageSize=5&language=it&apiKey=${apiKey}`;
+
+        const response = await fetch(url);
+        if (!response.ok) {
+            console.warn(`News API Error: ${response.status} ${response.statusText}`);
+            return [];
+        }
+
+        const json = await response.json();
+        if (!json.articles || !Array.isArray(json.articles)) return [];
+
+        return json.articles.map((article: any) => ({
+            title: article.title,
+            link: article.url,
+            pubDate: article.publishedAt ? new Date(article.publishedAt).toDateString() : "Recent",
+            source: article.source?.name || "News API"
+        }));
+
+    } catch (e) {
+        console.warn("News API Fetch Error:", e);
+        return [];
+    }
+};
+
 export const searchWeb = async (query: string): Promise<SearchResult[]> => {
     console.log(`Deep searching web for: ${query}`);
 
     // Execute searches in parallel
-    const [newsResults, redditResults] = await Promise.all([
+    const [newsResults, redditResults, newsApiResults] = await Promise.all([
         searchGoogleNews(query),
-        searchReddit(query)
+        searchReddit(query),
+        searchNewsApi(query)
     ]);
 
     // Interleave/Combine results
-    const combined = [...newsResults, ...redditResults];
+    const combined = [...newsResults, ...redditResults, ...newsApiResults];
 
     // Deduplicate by link just in case
     const unique = combined.filter((item, index, self) =>
@@ -90,5 +126,5 @@ export const searchWeb = async (query: string): Promise<SearchResult[]> => {
         ))
     );
 
-    return unique.slice(0, 10); // Return top 10 combined results
+    return unique.slice(0, 15); // Return top 15 combined results (increased from 10)
 };
