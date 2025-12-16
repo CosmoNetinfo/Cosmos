@@ -11,7 +11,7 @@ const App: React.FC = () => {
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Initialize session on mount
@@ -29,7 +29,14 @@ const App: React.FC = () => {
   }, []);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (chatContainerRef.current) {
+      const { scrollHeight, clientHeight } = chatContainerRef.current;
+      const maxScrollTop = scrollHeight - clientHeight;
+      chatContainerRef.current.scrollTo({
+        top: maxScrollTop > 0 ? maxScrollTop : 0,
+        behavior: 'smooth'
+      });
+    }
   };
 
   useEffect(() => {
@@ -85,7 +92,7 @@ const App: React.FC = () => {
       <div className="flex flex-col h-full max-w-4xl mx-auto w-full relative">
 
         {/* Chat Area */}
-        <div className="flex-1 overflow-y-auto pt-24 pb-4 px-4 md:px-6 space-y-4 scroll-smooth">
+        <div ref={chatContainerRef} className="flex-1 overflow-y-auto pt-24 pb-4 px-4 md:px-6 space-y-4 scroll-smooth">
           {messages.map((msg) => (
             <ChatMessage key={msg.id} message={msg} />
           ))}
@@ -112,9 +119,6 @@ const App: React.FC = () => {
             </div>
           )}
 
-
-
-          <div ref={messagesEndRef} className="h-4" />
         </div>
 
         {/* Input Area */}
